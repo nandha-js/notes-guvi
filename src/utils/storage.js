@@ -1,4 +1,3 @@
-// Check if localStorage is available
 const isLocalStorageAvailable = () => {
   try {
     const testKey = 'test';
@@ -10,7 +9,6 @@ const isLocalStorageAvailable = () => {
   }
 };
 
-// Get notes with offline support
 export const getNotes = () => {
   try {
     if (!isLocalStorageAvailable()) {
@@ -26,7 +24,6 @@ export const getNotes = () => {
   }
 };
 
-// Save notes with offline support
 export const saveNotes = (notes) => {
   try {
     if (!isLocalStorageAvailable()) {
@@ -37,7 +34,6 @@ export const saveNotes = (notes) => {
     
     localStorage.setItem('notes', JSON.stringify(notes));
     
-    // Sync when back online
     if (navigator.onLine && window.syncNotes) {
       window.syncNotes();
     }
@@ -46,7 +42,6 @@ export const saveNotes = (notes) => {
   }
 };
 
-// Get tags with offline support
 export const getTags = () => {
   const notes = getNotes();
   const tags = new Set();
@@ -56,7 +51,6 @@ export const getTags = () => {
   return Array.from(tags);
 };
 
-// Offline status management
 export const checkOnlineStatus = () => {
   return navigator.onLine;
 };

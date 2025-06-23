@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { setupOfflineListener } from '../utils/storage';
 import { FiWifi, FiWifiOff } from 'react-icons/fi';
+import { setupOfflineListener } from '../utils/storage';
 
 const OfflineIndicator = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);

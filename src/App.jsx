@@ -9,21 +9,18 @@ import { setupOfflineListener } from './utils/storage';
 
 function App() {
   useEffect(() => {
-    // Initialize service worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(
-          (registration) => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
             console.log('ServiceWorker registration successful');
-          },
-          (err) => {
+          })
+          .catch(err => {
             console.log('ServiceWorker registration failed: ', err);
-          }
-        );
+          });
       });
     }
 
-    // Setup offline listener
     const cleanup = setupOfflineListener(() => {
       console.log(`Now ${navigator.onLine ? 'online' : 'offline'}`);
     });

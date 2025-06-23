@@ -22,7 +22,6 @@ const Home = () => {
 
     return setupOfflineListener(() => {
       setIsOnline(navigator.onLine);
-      // Refresh data when coming back online
       if (navigator.onLine) {
         const refreshedNotes = getNotes().filter(note => !note.archived && !note.deleted);
         setNotes(refreshedNotes);
@@ -31,7 +30,72 @@ const Home = () => {
     });
   }, []);
 
-  // ... rest of your component logic
+  useEffect(() => {
+    let result = notes;
+    
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(note => 
+        note.title.toLowerCase().includes(term) || 
+        note.content.toLowerCase().includes(term)
+      );
+    }
+    
+    if (selectedTags.length > 0) {
+      result = result.filter(note => 
+        selectedTags.some(tag => note.tags?.includes(tag))
+      );
+    }
+    
+    setFilteredNotes(result);
+  }, [notes, searchTerm, selectedTags]);
+
+  const handleSubmit = (noteData) => {
+    let updatedNotes;
+    
+    if (noteToEdit) {
+      updatedNotes = notes.map(note => 
+        note.id === noteData.id ? noteData : note
+      );
+    } else {
+      updatedNotes = [...notes, noteData];
+    }
+    
+    setNotes(updatedNotes.filter(note => !note.archived && !note.deleted));
+    saveNotes(updatedNotes);
+    setShowForm(false);
+    setNoteToEdit(null);
+    setTags(getTags());
+  };
+
+  const handleEdit = (note) => {
+    setNoteToEdit(note);
+    setShowForm(true);
+  };
+
+  const handleDelete = (id) => {
+    const updatedNotes = notes.map(note => 
+      note.id === id ? { ...note, deleted: true, deletedAt: new Date().toISOString() } : note
+    );
+    setNotes(updatedNotes.filter(note => !note.deleted && !note.archived));
+    saveNotes(updatedNotes);
+  };
+
+  const handleArchive = (id) => {
+    const updatedNotes = notes.map(note => 
+      note.id === id ? { ...note, archived: !note.archived } : note
+    );
+    setNotes(updatedNotes.filter(note => !note.archived && !note.deleted));
+    saveNotes(updatedNotes);
+  };
+
+  const handleTogglePin = (id) => {
+    const updatedNotes = notes.map(note => 
+      note.id === id ? { ...note, pinned: !note.pinned } : note
+    );
+    setNotes(updatedNotes);
+    saveNotes(updatedNotes);
+  };
 
   return (
     <div className="flex-1 p-6">
@@ -55,7 +119,31 @@ const Home = () => {
         </div>
       )}
       
-      {/* Rest of your component */}
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <TagFilter 
+        tags={tags} 
+        selectedTags={selectedTags} 
+        setSelectedTags={setSelectedTags} 
+      />
+      
+      {showForm && (
+        <div className="mb-6 bg-white p-6 rounded-lg shadow">
+          <NoteForm
+            noteToEdit={noteToEdit}
+            onSubmit={handleSubmit}
+            onCancel={() => { setShowForm(false); setNoteToEdit(null); }}
+            allTags={tags}
+          />
+        </div>
+      )}
+      
+      <NoteList
+        notes={filteredNotes}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onArchive={handleArchive}
+        onTogglePin={handleTogglePin}
+      />
     </div>
   );
 };

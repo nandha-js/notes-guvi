@@ -52,7 +52,34 @@ const NoteCard = ({ note, onEdit, onDelete, onArchive, onTogglePin, isOnline }) 
         </div>
       </div>
       
-      {/* Rest of the component remains the same */}
+      <div className="mt-2">
+        {isExpanded ? (
+          <p className="whitespace-pre-line">{note.content}</p>
+        ) : (
+          <p className="truncate">{note.content}</p>
+        )}
+        <button 
+          onClick={() => setIsExpanded(!isExpanded)} 
+          className="text-blue-500 text-sm mt-2"
+        >
+          {isExpanded ? 'Show less' : 'Show more'}
+        </button>
+      </div>
+      
+      {note.tags?.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          <FiTag className="text-gray-400 mt-1" />
+          {note.tags.map(tag => (
+            <span key={tag} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+      
+      <div className="mt-2 text-xs text-gray-400">
+        Last updated: {new Date(note.updatedAt).toLocaleString()}
+      </div>
     </div>
   );
 };
