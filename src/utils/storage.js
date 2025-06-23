@@ -1,17 +1,71 @@
+// Check if localStorage is available
+const isLocalStorageAvailable = () => {
+  try {
+    const testKey = 'test';
+    localStorage.setItem(testKey, testKey);
+    localStorage.removeItem(testKey);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+// Get notes with offline support
 export const getNotes = () => {
-  const notes = localStorage.getItem('notes');
-  return notes ? JSON.parse(notes) : [];
+  try {
+    if (!isLocalStorageAvailable()) {
+      console.warn('LocalStorage not available - using fallback');
+      return window.__notesFallback || [];
+    }
+    
+    const notes = localStorage.getItem('notes');
+    return notes ? JSON.parse(notes) : [];
+  } catch (error) {
+    console.error('Error accessing notes:', error);
+    return [];
+  }
 };
 
+// Save notes with offline support
 export const saveNotes = (notes) => {
-  localStorage.setItem('notes', JSON.stringify(notes));
+  try {
+    if (!isLocalStorageAvailable()) {
+      console.warn('LocalStorage not available - using fallback');
+      window.__notesFallback = notes;
+      return;
+    }
+    
+    localStorage.setItem('notes', JSON.stringify(notes));
+    
+    // Sync when back online
+    if (navigator.onLine && window.syncNotes) {
+      window.syncNotes();
+    }
+  } catch (error) {
+    console.error('Error saving notes:', error);
+  }
 };
 
+// Get tags with offline support
 export const getTags = () => {
   const notes = getNotes();
   const tags = new Set();
   notes.forEach(note => {
-    note.tags.forEach(tag => tags.add(tag));
+    note.tags?.forEach(tag => tags.add(tag));
   });
   return Array.from(tags);
+};
+
+// Offline status management
+export const checkOnlineStatus = () => {
+  return navigator.onLine;
+};
+
+export const setupOfflineListener = (callback) => {
+  window.addEventListener('online', callback);
+  window.addEventListener('offline', callback);
+  return () => {
+    window.removeEventListener('online', callback);
+    window.removeEventListener('offline', callback);
+  };
 };
