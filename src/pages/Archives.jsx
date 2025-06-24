@@ -1,18 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getNotes, saveNotes } from '../utils/storage';
 import NoteList from '../components/NoteList';
 
 const Archives = () => {
   const [archivedNotes, setArchivedNotes] = useState([]);
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     const allNotes = getNotes();
-    setArchivedNotes(allNotes.filter(n => n.archived && !n.deleted));
-  };
+    const filtered = allNotes.filter(n => n.archived && !n.deleted);
+    setArchivedNotes(filtered);
+  }, []);
 
   useEffect(() => {
     refresh();
-  }, []);
+  }, [refresh]);
 
   const handleUnarchive = (id) => {
     const updatedNotes = getNotes().map(n =>
@@ -24,7 +25,9 @@ const Archives = () => {
 
   const handleDelete = (id) => {
     const updatedNotes = getNotes().map(n =>
-      n.id === id ? { ...n, deleted: true, deletedAt: new Date().toISOString() } : n
+      n.id === id
+        ? { ...n, deleted: true, deletedAt: new Date().toISOString() }
+        : n
     );
     saveNotes(updatedNotes);
     refresh();
@@ -32,13 +35,14 @@ const Archives = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Archived Notes</h2>
+      <h2 className="text-2xl font-bold mb-4">📁 Archived Notes</h2>
+
       <NoteList
         notes={archivedNotes}
-        onEdit={null}
+        onEdit={() => {}}          // graceful no-op if editing disabled
         onDelete={handleDelete}
         onArchive={handleUnarchive}
-        onTogglePin={null}
+        onTogglePin={() => {}}    // no-op to avoid errors
       />
     </div>
   );

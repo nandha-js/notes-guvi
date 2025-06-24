@@ -12,20 +12,20 @@ const OfflineIndicator = () => {
   }, []);
 
   return (
-    <div className={`fixed bottom-4 right-4 p-3 rounded-full shadow-lg ${
-      isOnline ? 'bg-green-500' : 'bg-red-500'
-    } text-white`}>
+    <div
+      className={`fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-2 rounded-full shadow-xl text-white transition-colors duration-300
+        ${isOnline ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}
+      role="status"
+      aria-live="polite"
+    >
       {isOnline ? (
-        <FiWifi className="text-xl" />
+        <FiWifi className="text-xl" title="You are online" />
       ) : (
-        <FiWifiOff className="text-xl" />
+        <FiWifiOff className="text-xl" title="You are offline" />
       )}
-      <span className="sr-only">
+      <span className="text-sm font-medium">
         {isOnline ? 'Online' : 'Offline'}
       </span>
-      <div className="absolute -top-2 -right-2 bg-white text-xs text-gray-800 rounded-full px-2 py-1 shadow">
-        {isOnline ? 'Online' : 'Offline'}
-      </div>
     </div>
   );
 };
