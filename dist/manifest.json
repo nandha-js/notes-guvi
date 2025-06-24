@@ -1,8 +1,10 @@
 {
   "name": "Notes App",
   "short_name": "Notes",
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "description": "Offline-capable notes application",

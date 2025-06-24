@@ -1,55 +1,47 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { getNotes, saveNotes } from '../utils/storage';
 import NoteList from '../components/NoteList';
 
 const Trash = () => {
   const [trashedNotes, setTrashedNotes] = useState([]);
 
-  const refresh = useCallback(() => {
-    const allNotes = getNotes();
-    setTrashedNotes(allNotes.filter(note => note.deleted));
-  }, []);
+  const refresh = () => {
+    const data = getNotes().filter(n => n.deleted);
+    setTrashedNotes(data);
+  };
 
   useEffect(() => {
     refresh();
-  }, [refresh]);
+  }, []);
 
   const handleRestore = (id) => {
-    const updatedNotes = getNotes().map(note =>
-      note.id === id ? { ...note, deleted: false } : note
+    const updatedNotes = getNotes().map(n =>
+      n.id === id ? { ...n, deleted: false } : n
     );
     saveNotes(updatedNotes);
     refresh();
   };
 
-  const handlePermanentDelete = (id) => {
-    const updatedNotes = getNotes().filter(note => note.id !== id);
+  const handleDeleteForever = (id) => {
+    const updatedNotes = getNotes().filter(n => n.id !== id);
     saveNotes(updatedNotes);
     refresh();
   };
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">🗑️ Trashed Notes</h2>
-
+      <h2 className="text-2xl font-bold mb-4">🗑 Trash</h2>
       <NoteList
         notes={trashedNotes}
-        onEdit={() => {}} // avoids undefined errors
-        onDelete={handlePermanentDelete}
+        onDelete={handleDeleteForever}
+        onRestore={handleRestore}
+        onEdit={() => {}}
         onArchive={() => {}}
         onTogglePin={() => {}}
-        onRestore={handleRestore} // supports restore functionality
       />
-
-      {trashedNotes.length > 0 ? (
-        <p className="text-sm text-gray-500 mt-4">
-          ✅ You can restore notes or delete them permanently.
-        </p>
-      ) : (
-        <p className="text-sm text-gray-400 mt-4">
-          Your trash is empty.
-        </p>
-      )}
+      <p className="text-sm text-gray-500 mt-4">
+        Restore to recover or delete permanently.
+      </p>
     </div>
   );
 };
